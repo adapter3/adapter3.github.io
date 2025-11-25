@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head><title>Question 6</title></head>
+<body>
+<h1>Question 6: Ensemble Modeling</h1>
+
+<pre>
+a–f. Logistic, Decision Tree, Random Forest → predict → accuracy.
+</pre>
+
+<h2>Answer</h2>
+<pre>
+library(caret)
+library(randomForest)
+library(rpart)
+library(pROC)
+
+df <- read.csv("synthetic_dataset.csv")
+df$Department <- as.factor(df$Department)
+df$Experience_Level <- as.factor(df$Experience_Level)
+df$Target <- as.factor(df$Target)
+
+set.seed(123)
+trainIndex <- createDataPartition(df$Target, p=0.7, list=FALSE)
+trainData <- df[trainIndex,]
+testData <- df[-trainIndex,]
+
+model_logit <- glm(Target ~ ., data=trainData, family="binomial")
+pred_logit <- predict(model_logit, testData, type="response")
+pred_logit_class <- ifelse(pred_logit > 0.5, "1","0")
+
+model_tree <- rpart(Target ~ ., data=trainData)
+pred_tree <- predict(model_tree, testData, type="class")
+
+model_rf <- randomForest(Target ~ ., data=trainData, ntree=100)
+pred_rf <- predict(model_rf, testData)
+
+logit_acc <- mean(pred_logit_class == testData$Target)
+tree_acc <- mean(pred_tree == testData$Target)
+rf_acc <- mean(pred_rf == testData$Target)
+</pre>
+
+</body>
+</html>
