@@ -10,22 +10,65 @@ a–d. Scale → PCA → K-means → Plot + cluster summary.
 
 <h2>Answer</h2>
 <pre>
-data <- read.csv("bank_customers-1.csv")
-data_num <- data[, sapply(data, is.numeric)]
-data_num <- data_num[,-1]
-scaled_data <- scale(data_num)
+# Load required libraries
+library(ggplot2)
+library(cluster)
+library(dplyr)
 
-pca_result <- prcomp(scaled_data)
-pca_data <- data.frame(pca_result$x[,1:2])
+# 1. Load dataset
+# Replace the file name with your dataset
+df <- read.csv("bank_customers-1.csv")
 
+# Preview the data
+head(df)
+
+# (a) Preprocess the dataset by scaling values
+# Select only numeric columns
+df_numeric <- df %>% select_if(is.numeric)
+
+# Scale numeric features
+df_scaled <- scale(df_numeric)
+
+# Display first few scaled rows
+head(df_scaled)
+
+
+# -------------------------------
+# (b) Dimensionality reduction (PCA)
+# -------------------------------
+pca_result <- prcomp(df_scaled)
+summary(pca_result)
+
+# Keep first two principal components
+pca_data <- data.frame(pca_result$x[, 1:2])
+
+
+# -------------------------------
+# (c) Apply clustering (K-means) and visualize clusters
+# -------------------------------
 set.seed(123)
-kmeans_result <- kmeans(pca_data, centers=3)
+kmeans_result <- kmeans(pca_data, centers = 3, nstart = 25)
 pca_data$Cluster <- as.factor(kmeans_result$cluster)
 
-library(ggplot2)
-ggplot(pca_data, aes(PC1,PC2,color=Cluster)) + geom_point(size=3)
+# Visualize clusters using PCA components
+ggplot(pca_data, aes(PC1, PC2, color = Cluster)) +
+  geom_point(size = 3) +
+  labs(title = "Customer Segmentation via PCA + K-means",
+       subtitle = "Bank Customers clustered by transaction behavior",
+       x = "Principal Component 1",
+       y = "Principal Component 2")
 
-aggregate(data_num, by=list(Cluster=kmeans_result$cluster), mean)
+# (d) Interpret the resulting clusters
+# Step 1: Add cluster labels to the original dataset
+df$Cluster <- kmeans_result$cluster
+
+# Step 2: Summarize key features for each cluster
+cluster_summary <- df %>%
+  group_by(Cluster) %>%
+  summarise_all(mean, na.rm = TRUE)
+
+# Step 3: Display cluster summaries
+print(cluster_summary)
 </pre>
 
 </body>
