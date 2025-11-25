@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head><title>Question 5</title></head>
+<body>
+<h1>Question 5: Flower Clustering (Iris Dataset)</h1>
+
+<pre>
+a–d. Scale → K-means → PCA → Plot → Compare clusters vs species.
+</pre>
+
+<h2>Answer</h2>
+<pre>
+library(ggplot2)
+library(cluster)
+library(dplyr)
+
+data(iris)
+iris_features <- iris[,1:4]
+iris_scaled <- scale(iris_features)
+
+set.seed(123)
+kmeans_result <- kmeans(iris_scaled, centers=3)
+iris$Cluster <- as.factor(kmeans_result$cluster)
+
+iris_pca <- prcomp(iris_scaled)
+iris_pca_df <- data.frame(iris_pca$x[,1:2], Cluster=iris$Cluster, Species=iris$Species)
+
+ggplot(iris_pca_df, aes(PC1,PC2,color=Cluster,shape=Species)) + geom_point(size=3)
+
+table(Cluster=iris$Cluster, Species=iris$Species)
+</pre>
+
+</body>
+</html>
