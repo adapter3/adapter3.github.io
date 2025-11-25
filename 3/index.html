@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head><title>Question 3</title></head>
+<body>
+<h1>Question 3: Integrated Data Workflow</h1>
+
+<pre>
+a–d. Import two sheets, merge, summarize, plot, clean, filter, group by location.
+</pre>
+
+<h2>Answer</h2>
+<pre>
+library(readxl)
+library(dplyr)
+
+demographics <- read_excel("customers.xlsx", sheet="demographics")
+purchases <- read_excel("customers.xlsx", sheet="purchases")
+merged_data <- merge(demographics, purchases, by="ID")
+str(merged_data)
+
+mean_age <- mean(merged_data$Age, na.rm=TRUE)
+median_age <- median(merged_data$Age, na.rm=TRUE)
+mean_amount <- mean(merged_data$Amount, na.rm=TRUE)
+median_amount <- median(merged_data$Amount, na.rm=TRUE)
+
+plot(merged_data$Age, merged_data$Amount)
+
+merged_data$Gender <- as.factor(merged_data$Gender)
+merged_data$Amount[is.na(merged_data$Amount)] <- mean(merged_data$Amount, na.rm=TRUE)
+merged_data$Date <- as.Date(merged_data$Date)
+merged_data <- subset(merged_data, Date >= "2024-01-01")
+
+total_by_location <- merged_data %>% group_by(Location) %>% summarise(TotalAmount = sum(Amount))
+print(total_by_location)
+</pre>
+
+</body>
+</html>
