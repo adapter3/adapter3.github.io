@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head><title>Question 8</title></head>
+<body>
+<h1>Question 8: Fitness Data Analysis</h1>
+
+<pre>
+a–d. Import → Explore → Filter → Create ActivityScore.
+</pre>
+
+<h2>Answer</h2>
+<pre>
+fitness_data <- read.csv("dailyActivity_merged1.csv")
+fitness_data$ActivityDate <- as.Date(fitness_data$ActivityDate, "%m/%d/%Y")
+str(fitness_data)
+
+hist(fitness_data$TotalSteps)
+hist(fitness_data$Calories)
+boxplot(fitness_data$TotalSteps)
+boxplot(fitness_data$Calories)
+
+filtered_data <- subset(fitness_data, TotalSteps >= 1000)
+filtered_data$ActivityScore <- (filtered_data$TotalSteps / 1000) + (filtered_data$Calories / 200)
+head(filtered_data)
+</pre>
+
+</body>
+</html>
