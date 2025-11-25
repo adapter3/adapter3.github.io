@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head><title>Question 2</title></head>
+<body>
+<h1>Question 2: Weather Dataset Preparation</h1>
+
+<pre>
+a–d. Import, format date, explore, clean, create ComfortIndex
+</pre>
+
+<h2>Answer</h2>
+<pre>
+weather <- read.csv("weather.csv")
+weather$Date <- as.Date(weather$Date, "%Y-%m-%d")
+str(weather)
+
+summary(weather$Temperature)
+summary(weather$Humidity)
+
+hist(weather$Temperature)
+hist(weather$Humidity)
+boxplot(weather$Temperature)
+boxplot(weather$Humidity)
+
+weather <- subset(weather, WindSpeed <= 50)
+weather$ComfortIndex <- weather$Temperature - (weather$Humidity / 2)
+weather_filtered <- subset(weather, Date > as.Date("2023-01-01"))
+</pre>
+</body>
+</html>
