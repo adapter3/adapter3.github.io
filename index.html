@@ -14,6 +14,401 @@
   <li><a href="6/">Question 6</a></li>
   <li><a href="7/">Question 7</a></li>
   <li><a href="8/">Question 8</a></li>
+
+  Question 1: Analyzing a Sales Dataset in R You are provided with a CSV file named "sales_data.csv" containing columns: Date (as character), Pro
+duct (factor), Quantity (numeric), Price (numeric), and Region (factor). Some entries may have missing values or inconsistencies
+ a. Load the dataset into R and display the structure of the data frame.
+ b. Generate summary statistics for the numeric columns and create a histogram for the Quantity variable. Identify any potential outliers based
+ on your exploration.
+ c. Handle missing values in the Price column by imputing them with the median price, then subset the data to include only sales from the "East
+" region.
+ d. Merge this cleaned dataset with another data frame called "product_info" (which you assume has columns Product and Category) using the Prod
+uct column as the key. Display the first 5 rows of the merged data.
+
+1.
+df<-read.csv("sales_data-1.csv")
+str(df)
+summary(df$Price)
+hist(df$Quantity)
+boxplot(df$Quantity)
+
+# Impute missing Price values with median
+median_price <- median(df$Price, na.rm = TRUE)
+df$Price[is.na(df$Price)] <- median_price
+
+# Subset for East region
+east_sales <- subset(df, Region == "East")
+
+# View first few rows
+head(east_sales)
+
+product_info <- data.frame(
+  Product = c("Tablet", "Phone", "Monitor", "Laptop", "Headphones"),
+  Category = c("Electronics", "Electronics", "Electronics", "Electronics", "Accessories")
+)
+
+merged_data <- merge(east_sales, product_info, by = "Product")
+
+head(merged_data, 5)
+
+
+
+Question 2: Exploring and Preparing Weather Data for Insights Consider a dataset "weather.csv" with variables: Date, Temperature (numeric), Hum
+idity (numeric), WindSpeed (numeric), and Condition (character). The data science process requires understanding and refining this data for pre
+dictive analysis.
+ a. Import the dataset into R and convert the Date column to a proper date format. Why is data loading and initial formatting crucial in the da
+ta understanding phase?
+ b. Use appropriate functions to explore the distribution of Temperature and Humidity, including boxplots for each.
+ c. Manage the data by removing rows where WindSpeed is greater than 50 (assuming these are errors), and create a new variable "ComfortIndex" a
+s (Temperature - Humidity / 2). Subset the data for dates after "2023-01-01".
+ d. Explain how these exploration and management steps align with the data preparation stage in the data science process, and suggest a potenti
+al next step like modeling.
+
+2.
+#A)
+# Load the dataset
+weather <- read.csv("weather.csv")
+
+# Convert Date column to proper date format
+weather$Date <- as.Date(weather$Date, format = "%Y-%m-%d")
+
+# Check structure
+str(weather)
+
+
+#B)
+# Summary statistics
+summary(weather$Temperature)
+summary(weather$Humidity)
+
+# Histograms
+hist(weather$Temperature, main = "Distribution of Temperature", xlab = "Temperature")
+hist(weather$Humidity, main = "Distribution of Humidity", xlab = "Humidity")
+
+# Boxplots
+boxplot(weather$Temperature, main = "Boxplot of Temperature", ylab = "Temperature")
+boxplot(weather$Humidity, main = "Boxplot of Humidity", ylab = "Humidity")
+
+
+#C)
+# Remove rows with WindSpeed > 50 (considered errors)
+weather <- subset(weather, WindSpeed <= 50)
+
+# Create new variable ComfortIndex = Temperature - (Humidity / 2)
+weather$ComfortIndex <- weather$Temperature - (weather$Humidity / 2)
+
+# Subset for dates after 2023-01-01
+weather_filtered <- subset(weather, Date > as.Date("2023-01-01"))
+
+
+Question 3: Integrated Data Workflow for Customer Analytics You have an Excel file "customers.xlsx" with sheets for "demographics" (columns: ID
+, Age, Gender, Location) and "purchases" (columns: ID, Item, Amount, Date). Integrate these for a holistic data science approach.
+ a. Load both sheets into separate data frames in R, then merge them based on the ID column. Describe the role of data loading in initiating th
+e data science process.
+ b. Explore the merged data by calculating mean and median for Age and Amount, and create a scatter plot of Age vs. Amount.
+ c. Manage inconsistencies by converting Gender to a factor, handling any NA values in Amount with the mean, and filtering out purchases before
+ a specific date (e.g., "2024-01-01").
+ d. Summarize how mixing exploration and management enhances the overall data science process, and propose a simple aggregation (e.g., total Am
+ount by Location) as a final output. #
+
+3.
+#A)
+# Load libraries
+library(readxl) # for reading Excel files
+library(dplyr) # for data manipulation
+
+# Load the two sheets into separate data frames
+demographics <- read_excel("customers.xlsx", sheet = "demographics")
+purchases <- read_excel("customers.xlsx", sheet = "purchases")
+
+# Merge based on ID
+merged_data <- merge(demographics, purchases, by = "ID")
+
+# View structure
+str(merged_data)
+
+#B)
+# Mean and Median for Age and Amount
+mean_age <- mean(merged_data$Age, na.rm = TRUE)
+median_age <- median(merged_data$Age, na.rm = TRUE)
+mean_amount <- mean(merged_data$Amount, na.rm = TRUE)
+median_amount <- median(merged_data$Amount, na.rm = TRUE)
+
+mean_age; median_age; mean_amount; median_amount
+
+# Scatter plot of Age vs Amount
+plot(merged_data$Age, merged_data$Amount,
+     main = "Scatter Plot of Age vs Amount",
+     xlab = "Age", ylab = "Purchase Amount",
+     pch = 19, col = "blue")
+
+
+#C)
+# Convert Gender to factor
+merged_data$Gender <- as.factor(merged_data$Gender)
+
+# Replace NA in Amount with mean
+merged_data$Amount[is.na(merged_data$Amount)] <- mean(merged_data$Amount, na.rm = TRUE)
+
+# Convert Date to proper format
+merged_data$Date <- as.Date(merged_data$Date)
+
+# Filter out purchases before 2024-01-01
+merged_data <- subset(merged_data, Date >= "2024-01-01")
+
+
+#D)
+
+# Aggregation: Total Amount by Location
+total_by_location <- merged_data %>%
+  group_by(Location) %>%
+  summarise(TotalAmount = sum(Amount, na.rm = TRUE))
+
+print(total_by_location)
+
+Question 4: You are provided with a dataset containing customer demographics and purchase history.
+ a. Load the dataset into R.
+ b. Split the data into training and testing sets.
+ c. Fit at least two different predictive models on the training set.
+ d. Evaluate their performance using accuracy and confusion matrix on the testing set.
+
+
+4.
+install.packages("caret")
+install.packages("e1071")
+install.packages("rpart")
+install.packages("randomForest")
+
+library(caret) # For modeling, splitting, evaluation
+library(e1071) # For Naive Bayes
+library(rpart) # For Decision Tree
+library(randomForest) # For Random Forest
+
+# Read dataset
+data <- read.csv("customers.csv")
+
+# View structure of dataset
+str(data)
+summary(data)
+
+set.seed(123) # for reproducibility
+
+# Split dataset: 70% training, 30% testing
+trainIndex <- createDataPartition(data$Purchase, p = 0.7, list = FALSE)
+trainData <- data[trainIndex, ]
+testData <- data[-trainIndex, ]
+# Fit Decision Tree
+model_dt <- rpart(Purchase ~ ., data = trainData, method = "class")
+
+# Predict on test set
+pred_dt <- predict(model_dt, testData, type = "class")
+
+trainData$Purchase <- as.factor(trainData$Purchase)
+testData$Purchase <- as.factor(testData$Purchase)
+
+# Fit Random Forest (classification mode)
+model_rf <- randomForest(Purchase ~ ., data = trainData)
+
+# Predict on test set
+pred_rf <- predict(model_rf, testData)
+
+# Confusion matrix and accuracy for Decision Tree
+confusion_dt <- confusionMatrix(pred_dt, testData$Purchase)
+print(confusion_dt)
+
+# Confusion matrix and accuracy for Random Forest
+confusion_rf <- confusionMatrix(pred_rf, testData$Purchase)
+print(confusion_rf)
+
+
+Question 5: Consider a dataset of flower measurements (sepal length, sepal width, petal length, petal width).
+ a. Normalize the data.
+ b. Apply clustering to group similar flowers.
+ c. Visualize the clusters using a scatter plot.
+ d. Compare the clustering results with the actual species column in the dataset.
+
+
+5.
+# Load required libraries
+library(ggplot2)
+library(cluster)
+library(dplyr)
+
+# 1. Load dataset
+data(iris)
+head(iris)
+
+# 2. Normalize the data (exclude species)
+iris_features <- iris[, 1:4]
+iris_scaled <- scale(iris_features)
+
+# 3. Apply clustering (k-means with 3 clusters since there are 3 species)
+set.seed(123) # for reproducibility
+kmeans_result <- kmeans(iris_scaled, centers = 3, nstart = 25)
+
+# Add cluster labels to the dataset
+iris$Cluster <- as.factor(kmeans_result$cluster)
+
+# 4. Visualize clusters (using first two principal components)
+iris_pca <- prcomp(iris_scaled)
+iris_pca_df <- data.frame(iris_pca$x[, 1:2],
+                          Cluster = iris$Cluster,
+                          Species = iris$Species)
+
+# Scatter plot: k-means clusters
+ggplot(iris_pca_df, aes(PC1, PC2, color = Cluster, shape = Species)) +
+  geom_point(size = 3) +
+  labs(title = "K-means Clustering on Iris Dataset",
+       subtitle = "Color = Cluster, Shape = Actual Species")
+
+# 5. Compare clustering results with actual species
+table(Cluster = iris$Cluster, Species = iris$Species)
+
+
+
+
+Question 6: 
+Take any dataset with categorical and numerical variables. 
+a. Encode categorical variables appropriately. 
+b. Fit at least two models of different types. 
+c. Combine them into an ensemble model (e.g., bagging, 
+boosting, or random forest). 
+d. Compare ensemble results with individual models. 
+ANSWER: 
+
+
+#a Load required libraries 
+library(caret) # For data splitting and preprocessing 
+library(randomForest) # For ensemble 
+library(rpart) # For decision tree 
+library(pROC) # For ROC curve / AUC comparison 
+# Load the dataset 
+df <- read.csv("synthetic_dataset.csv") 
+#a) Encode categorical variables 
+df$Department <- as.factor(df$Department) 
+df$Experience_Level <- as.factor(df$Experience_Level) 
+df$Target <- as.factor(df$Target) 
+# Split into train/test 
+set.seed(123) 
+trainIndex <- createDataPartition(df$Target, p = 0.7, list = FALSE) 
+trainData <- df[trainIndex, ] 
+testData <- df[-trainIndex, ] 
+#b1
+model_logit <- glm(Target ~ Age + Salary + Department + Experience_Level, 
+                   data = trainData, family = binomial)
+pred_logit <- predict(model_logit, newdata = testData, type = "response") 
+pred_logit_class <- ifelse(pred_logit > 0.5, "1", "0") 
+logit_acc <- mean(pred_logit_class == testData$Target) 
+#b2 Decision Tree 
+model_tree <- rpart(Target ~ Age + Salary + Department + Experience_Level, 
+                    data = trainData, method = "class") 
+pred_tree <- predict(model_tree, newdata = testData, type = "class") 
+tree_acc <- mean(pred_tree == testData$Target) 
+#c) Ensemble Model - Random Forest 
+set.seed(123) 
+model_rf <- randomForest(Target ~ Age + Salary + Department + Experience_Level, 
+                         data = trainData, ntree = 100) 
+pred_rf <- predict(model_rf, newdata = testData) 
+rf_acc <- mean(pred_rf == testData$Target) 
+#d) Compare Results 
+cat("Logistic Regression Accuracy:", logit_acc, "\n") 
+cat("Decision Tree Accuracy:", tree_acc, "\n") 
+cat("Random Forest (Ensemble) Accuracy:", rf_acc, "\n") 
+# Optional: Compare ROC curves 
+roc_logit <- roc(testData$Target, as.numeric(pred_logit)) 
+roc_tree <- roc(testData$Target, as.numeric(pred_tree)) 
+roc_rf <- roc(testData$Target, as.numeric(pred_rf)) 
+plot(roc_logit, col = "blue", main = "ROC Curve Comparison") 
+plot(roc_tree, col = "red", add = TRUE) 
+plot(roc_rf, col = "green", add = TRUE) 
+legend("bottomright", legend=c("Logistic", "Decision Tree", "Random Forest"), 
+       col=c("blue","red","green"), lwd=2)
+
+
+
+
+Question 7: 
+A bank wants to segment its customers based on transaction 
+behavior. 
+a. Preprocess the dataset by scaling values. 
+b. Apply dimensionality reduction (e.g., PCA) before 
+clustering. 
+c. Visualize the reduced data with cluster assignments. 
+d. Interpret the resulting clusters. 
+ANSWER: 
+
+#a) Load dataset 
+data <- read.csv("bank_customers-1.csv") 
+#  Select only numeric columns 
+data_num <- data[ , sapply(data, is.numeric)] 
+# Remove CustomerID (it’s just an identifier) 
+data_num <- data_num[ , -1] 
+# Scale all numeric columns 
+scaled_data <- scale(data_num) 
+#b)  Apply PCA to reduce dimensions 
+pca_result <- prcomp(scaled_data, center = TRUE, scale. = TRUE) 
+# Take first two principal components 
+pca_data <- data.frame(pca_result$x[, 1:2]) 
+#  Apply K-Means clustering 
+set.seed(123)  # for reproducibility 
+kmeans_result <- kmeans(pca_data, centers = 3) 
+# Add cluster labels to the PCA data 
+pca_data$Cluster <- as.factor(kmeans_result$cluster) 
+#c) Visualize clusters 
+library(ggplot2) 
+ggplot(pca_data, aes(x = PC1, y = PC2, color = Cluster)) + 
+geom_point(size = 3) + 
+theme_minimal() + 
+ggtitle("Customer Segmentation using PCA + KMeans")
+# d) View the average values for each cluster 
+cluster_summary <- aggregate(data_num, by = list(Cluster = kmeans_result$cluster), mean) 
+print(cluster_summary)
+
+
+
+
+
+
+Question 8: 
+A dataset "fitness_data.csv" contains: UserID, Steps, CaloriesBurned, SleepHours, and Date. 
+a.Import the dataset and convert Date to date format. Explain why proper data formatting helps in time-series analysis. 
+b.Plot histograms for Steps and CaloriesBurned, and use boxplots to detect outliers. 
+c.Filter out rows where Steps < 1000 (considered incomplete recordings). Create a new variable ActivityScore = (Steps / 
+1000) + (CaloriesBurned / 200). 
+ANSWER: 
+
+
+
+#a) Import the  dataset and convert Date to date format 
+fitness_data <- read.csv("dailyActivity_merged1.csv", stringsAsFactors = FALSE) 
+# Convert the Date column to Date type 
+fitness_data$ActivityDate <- as.Date(fitness_data$ActivityDate, format = "%m/%d/%Y") 
+# Verify structure 
+str(fitness_data) 
+#b)Plot histograms for Steps and CaloriesBurned, and boxplots to detect outliers 
+hist(fitness_data$TotalSteps, 
+     main = "Histogram of Steps", 
+     xlab = "Steps", 
+     col = "lightblue", 
+     breaks = 30) 
+hist(fitness_data$Calories, 
+     main = "Histogram of Calories Burned", 
+     xlab = "Calories Burned", 
+     col = "lightgreen", 
+     breaks = 30) 
+boxplot(fitness_data$TotalSteps, 
+        main = "Boxplot of Steps", 
+        col = "lightblue")
+boxplot(fitness_data$Calories, 
+main = "Boxplot of Calories Burned", 
+col = "lightgreen") 
+#c) Filter out rows where Steps < 1000 (incomplete recordings) 
+f
+ iltered_data <- subset(fitness_data, TotalSteps >= 1000) 
+# Create new variable ActivityScore 
+filtered_data$ActivityScore <- (filtered_data$TotalSteps / 1000) + (filtered_data$Calories / 200) 
+# View first few rows of the new dataset 
+head(filtered_data)
 </ul>
 </body>
 </html>
