@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head><title>Question 4</title></head>
+<body>
+<h1>Question 4: Predictive Models in R</h1>
+
+<pre>
+a–e. Load data, train/test split, DT + RF, predictions, accuracy via confusionMatrix.
+</pre>
+
+<h2>Answer</h2>
+<pre>
+library(caret)
+library(e1071)
+library(rpart)
+library(randomForest)
+
+data <- read.csv("customers.csv")
+str(data)
+summary(data)
+
+set.seed(123)
+trainIndex <- createDataPartition(data$Purchase, p=0.7, list=FALSE)
+trainData <- data[trainIndex,]
+testData <- data[-trainIndex,]
+
+model_dt <- rpart(Purchase ~ ., data=trainData, method="class")
+pred_dt <- predict(model_dt, testData, type="class")
+
+trainData$Purchase <- as.factor(trainData$Purchase)
+testData$Purchase <- as.factor(testData$Purchase)
+
+model_rf <- randomForest(Purchase ~ ., data=trainData)
+pred_rf <- predict(model_rf, testData)
+
+confusionMatrix(pred_dt, testData$Purchase)
+confusionMatrix(pred_rf, testData$Purchase)
+</pre>
+
+</body>
+</html>
