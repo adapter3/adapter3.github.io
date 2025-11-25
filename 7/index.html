@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head><title>Question 7</title></head>
+<body>
+<h1>Question 7: Bank Customer Segmentation</h1>
+
+<pre>
+a–d. Scale → PCA → K-means → Plot + cluster summary.
+</pre>
+
+<h2>Answer</h2>
+<pre>
+data <- read.csv("bank_customers-1.csv")
+data_num <- data[, sapply(data, is.numeric)]
+data_num <- data_num[,-1]
+scaled_data <- scale(data_num)
+
+pca_result <- prcomp(scaled_data)
+pca_data <- data.frame(pca_result$x[,1:2])
+
+set.seed(123)
+kmeans_result <- kmeans(pca_data, centers=3)
+pca_data$Cluster <- as.factor(kmeans_result$cluster)
+
+library(ggplot2)
+ggplot(pca_data, aes(PC1,PC2,color=Cluster)) + geom_point(size=3)
+
+aggregate(data_num, by=list(Cluster=kmeans_result$cluster), mean)
+</pre>
+
+</body>
+</html>
