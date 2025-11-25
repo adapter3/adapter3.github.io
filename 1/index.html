@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Question 1</title>
+</head>
+<body>
+<h1>Question 1: Analyzing a Sales Dataset in R</h1>
+
+<pre>
+a–d. Load dataset, explore, impute, subset, merge with product_info
+</pre>
+
+<h2>Answer</h2>
+<pre>
+df<-read.csv("sales_data-1.csv")
+str(df)
+summary(df$Price)
+hist(df$Quantity)
+boxplot(df$Quantity)
+
+median_price <- median(df$Price, na.rm = TRUE)
+df$Price[is.na(df$Price)] <- median_price
+
+east_sales <- subset(df, Region == "East")
+head(east_sales)
+
+product_info <- data.frame(
+  Product = c("Tablet", "Phone", "Monitor", "Laptop", "Headphones"),
+  Category = c("Electronics", "Electronics", "Electronics", "Electronics", "Accessories")
+)
+
+merged_data <- merge(east_sales, product_info, by = "Product")
+head(merged_data, 5)
+</pre>
+
+</body>
+</html>
